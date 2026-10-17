@@ -12,6 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Extra packages go in their own layer so the SSH host keys created above stay the same.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        nlohmann-json3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # ONNX Runtime prebuilt C/C++ library, installed under /usr/local.
 # Its bundled CMake/pkg-config files expect headers in include/onnxruntime/ and
 # libraries in lib64/, so place headers to match and patch lib64 -> lib.

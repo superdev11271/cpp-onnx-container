@@ -8,6 +8,7 @@ A Docker image for building C++ programs that use ONNX Runtime on ARM64 (aarch64
 | C++ compiler | g++ 11.4 (`build-essential`)                               |
 | CMake        | 3.22.1                                                     |
 | ONNX Runtime | 1.31.0, CPU, installed in `/usr/local`                     |
+| nlohmann/json | 3.10.5 (`nlohmann-json3-dev`)                             |
 | SSH server   | OpenSSH, port 22                                           |
 | VS Code Server | 1.120.0, pre-installed for Remote-SSH                    |
 | User         | `master`, password `111`, member of `sudo`                 |
@@ -23,6 +24,7 @@ docker build -t cpp-onnx-env .
 - If an x86 build fails with `qemu: uncaught target signal 11 (Segmentation fault)`, run the build again. This is a random emulator crash and does not happen on real ARM hardware.
 - To use another ONNX Runtime version, pass `--build-arg ORT_VERSION=<version>`. The version needs an `onnxruntime-linux-aarch64-<version>.tgz` file on the [ONNX Runtime releases page](https://github.com/microsoft/onnxruntime/releases).
 - To pre-install another VS Code Server version, pass `--build-arg VSCODE_VERSION=<version>`, for example `1.133.0`.
+- To add more Ubuntu packages, add them to the **second** `apt-get install` step in the Dockerfile (the one with `nlohmann-json3-dev`). Changing the first step creates new SSH host keys.
 
 ## Run
 
@@ -103,6 +105,15 @@ cmake --build build
 ./build/app
 ```
 
+**nlohmann/json** is header-only. With CMake:
+
+```cmake
+find_package(nlohmann_json 3.2.0 REQUIRED)
+target_link_libraries(app PRIVATE nlohmann_json::nlohmann_json)
+```
+
+In code: `#include <nlohmann/json.hpp>`.
+
 **Without CMake:**
 
 ```bash
@@ -112,7 +123,7 @@ g++ -std=c++17 main.cpp -I/usr/local/include/onnxruntime -lonnxruntime -o app
 ## Troubleshooting
 
 **`WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`**
-The SSH host keys are created when the image is built. Containers from the same image share them, so recreating a container does not trigger this warning. Changing `ORT_VERSION` or `VSCODE_VERSION` keeps the keys. Rebuilding the image from scratch (for example with `--no-cache`) creates new keys. Remove the old entry, then connect again:
+The SSH host keys are created when the image is built. Containers from the same image share them, so recreating a container does not trigger this warning. Changing `ORT_VERSION` or `VSCODE_VERSION`, or adding packages to the second `apt-get install` step, keeps the keys. Rebuilding the image from scratch (for example with `--no-cache`) creates new keys. Remove the old entry, then connect again:
 
 ```bash
 ssh-keygen -R "[localhost]:2222"
