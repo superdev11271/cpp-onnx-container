@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ONNX Runtime prebuilt C/C++ library, installed under /usr/local.
 # Its bundled CMake/pkg-config files expect headers in include/onnxruntime/ and
 # libraries in lib64/, so place headers to match and patch lib64 -> lib.
+# The headers are also linked into include/onnxruntime/core/session/ so the source-tree
+# style <onnxruntime/core/session/onnxruntime_cxx_api.h> include path works too.
 # ldconfig is retried because it randomly segfaults under QEMU (x86 host building arm64).
 # Version ARGs are declared after the apt layer so changing them keeps the SSH host keys.
 ARG ORT_VERSION=1.31.0
@@ -28,6 +30,9 @@ RUN curl -fsSL https://github.com/microsoft/onnxruntime/releases/download/v${ORT
     && cd /tmp/onnxruntime-linux-aarch64-${ORT_VERSION} \
     && mkdir -p /usr/local/include/onnxruntime \
     && cp -r include/. /usr/local/include/onnxruntime/ \
+    && mkdir -p /usr/local/include/onnxruntime/core/session \
+    && find /usr/local/include/onnxruntime -maxdepth 1 -type f \
+        -exec ln -s {} /usr/local/include/onnxruntime/core/session/ \; \
     && cp -a lib/. /usr/local/lib/ \
     && sed -i 's#/lib64#/lib#g' \
         /usr/local/lib/cmake/onnxruntime/onnxruntimeTargets-release.cmake \

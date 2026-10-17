@@ -89,6 +89,15 @@ The pre-installed server is used only if your local VS Code is exactly version 1
 
 Headers are in `/usr/local/include/onnxruntime` and libraries in `/usr/local/lib`.
 
+Both include styles work and point at the same files:
+
+```cpp
+#include <onnxruntime_cxx_api.h>                              // release-package style
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>     // source-tree style
+```
+
+The release package ships its headers in one flat folder. The image also links them into `onnxruntime/core/session/`, the folder the ONNX Runtime source tree uses, so code written for either layout compiles unchanged.
+
 **With CMake:**
 
 ```cmake
