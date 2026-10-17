@@ -9,6 +9,7 @@ A Docker image for building C++ programs that use ONNX Runtime on ARM64 (aarch64
 | CMake        | 3.22.1                                                     |
 | ONNX Runtime | 1.31.0, CPU, installed in `/usr/local`                     |
 | nlohmann/json | 3.10.5 (`nlohmann-json3-dev`)                             |
+| Git          | 2.34 (Ubuntu 22.04 package)                                |
 | SSH server   | OpenSSH, port 22                                           |
 | VS Code Server | 1.120.0, pre-installed for Remote-SSH                    |
 | User         | `master`, password `111`, member of `sudo`                 |

@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Extra packages go in their own layer so the SSH host keys created above stay the same.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nlohmann-json3-dev \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 # ONNX Runtime prebuilt C/C++ library, installed under /usr/local.
