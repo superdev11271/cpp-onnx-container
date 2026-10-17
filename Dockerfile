@@ -35,8 +35,10 @@ RUN curl -fsSL https://github.com/microsoft/onnxruntime/releases/download/v${ORT
     && (ldconfig || ldconfig || ldconfig) \
     && rm -rf /tmp/onnxruntime-linux-aarch64-${ORT_VERSION}
 
+# ~/Document is an optional bind-mount target (docker run -v <host dir>:/home/master/Document).
 RUN useradd -m -s /bin/bash -G sudo master \
-    && echo "master:111" | chpasswd
+    && echo "master:111" | chpasswd \
+    && install -d -o master -g master /home/master/Document
 
 # VS Code Server for Remote-SSH, pre-installed for master where Remote-SSH looks for it.
 # It is used only when the connecting VS Code is exactly VSCODE_VERSION.

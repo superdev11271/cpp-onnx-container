@@ -50,6 +50,18 @@ In Windows `cmd`, paste the key text instead: `-e SSH_PUBLIC_KEY="ssh-ed25519 AA
 
 To allow more than one key, put them in `SSH_PUBLIC_KEY` separated by newlines.
 
+**Shared folder (optional).** Add `-v <host folder>:/home/master/Document` to make a folder on your computer appear as `~/Document` in the container. Changes made on either side show up on the other. Without `-v`, `~/Document` is an empty folder inside the container.
+
+```bash
+# Windows (cmd or PowerShell)
+docker run -d --name cpp-env -p 2222:22 -v "C:\Users\<you>\Documents:/home/master/Document" cpp-onnx-env
+
+# Linux
+docker run -d --name cpp-env -p 2222:22 -v ~/Documents:/home/master/Document cpp-onnx-env
+```
+
+`-v` can be combined with `-e SSH_PUBLIC_KEY=...`. On Linux, `master` has user ID 1000, so the host folder should belong to user ID 1000 for `master` to write to it. On Windows, `master` can write to it either way.
+
 ## Connect
 
 ```bash
