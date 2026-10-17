@@ -1,10 +1,10 @@
-# C++ / ONNX Runtime dev container (Ubuntu 22.04, arm64)
+# C++ / ONNX Runtime dev container (Ubuntu 22.04, amd64)
 
-A Docker image for building C++ programs that use ONNX Runtime on ARM64 (aarch64), reachable over SSH.
+A Docker image for building C++ programs that use ONNX Runtime on x86-64 (amd64), reachable over SSH.
 
 | Component    | Version / details                                          |
 |--------------|------------------------------------------------------------|
-| OS           | Ubuntu 22.04, `linux/arm64`                                |
+| OS           | Ubuntu 22.04, `linux/amd64`                                |
 | C++ compiler | g++ 11.4 (`build-essential`)                               |
 | CMake        | 3.22.1                                                     |
 | ONNX Runtime | 1.31.0, CPU, installed in `/usr/local`                     |
@@ -19,10 +19,9 @@ A Docker image for building C++ programs that use ONNX Runtime on ARM64 (aarch64
 docker build -t cpp-onnx-env .
 ```
 
-- The image is always built for `linux/arm64`. On an x86 PC, Docker Desktop emulates ARM, which is slower.
-- The warning `FromPlatformFlagConstDisallowed` is expected. The ARM platform is fixed in the Dockerfile on purpose.
-- If an x86 build fails with `qemu: uncaught target signal 11 (Segmentation fault)`, run the build again. This is a random emulator crash and does not happen on real ARM hardware.
-- To use another ONNX Runtime version, pass `--build-arg ORT_VERSION=<version>`. The version needs an `onnxruntime-linux-aarch64-<version>.tgz` file on the [ONNX Runtime releases page](https://github.com/microsoft/onnxruntime/releases).
+- The image is always built for `linux/amd64`. On an ARM machine (for example an Apple Silicon Mac), Docker emulates x86, which is slower.
+- The warning `FromPlatformFlagConstDisallowed` is expected. The platform is fixed in the Dockerfile on purpose.
+- To use another ONNX Runtime version, pass `--build-arg ORT_VERSION=<version>`. The version needs an `onnxruntime-linux-x64-<version>.tgz` file on the [ONNX Runtime releases page](https://github.com/microsoft/onnxruntime/releases).
 - To pre-install another VS Code Server version, pass `--build-arg VSCODE_VERSION=<version>`, for example `1.133.0`.
 - To add more Ubuntu packages, add them to the **second** `apt-get install` step in the Dockerfile (the one with `nlohmann-json3-dev`). Changing the first step creates new SSH host keys.
 
@@ -149,9 +148,6 @@ The SSH host keys are created when the image is built. Containers from the same 
 ```bash
 ssh-keygen -R "[localhost]:2222"
 ```
-
-**`onnxruntime cpuid_info warning: Unknown CPU vendor`**
-This appears only when the container runs under x86 emulation. It is harmless and does not appear on real ARM hardware.
 
 ## Security
 

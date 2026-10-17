@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM --platform=linux/arm64 ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -22,12 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # libraries in lib64/, so place headers to match and patch lib64 -> lib.
 # The headers are also linked into include/onnxruntime/core/session/ so the source-tree
 # style <onnxruntime/core/session/onnxruntime_cxx_api.h> include path works too.
-# ldconfig is retried because it randomly segfaults under QEMU (x86 host building arm64).
 # Version ARGs are declared after the apt layer so changing them keeps the SSH host keys.
 ARG ORT_VERSION=1.31.0
-RUN curl -fsSL https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-linux-aarch64-${ORT_VERSION}.tgz \
+RUN curl -fsSL https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-linux-x64-${ORT_VERSION}.tgz \
         | tar -xz -C /tmp \
-    && cd /tmp/onnxruntime-linux-aarch64-${ORT_VERSION} \
+    && cd /tmp/onnxruntime-linux-x64-${ORT_VERSION} \
     && mkdir -p /usr/local/include/onnxruntime \
     && cp -r include/. /usr/local/include/onnxruntime/ \
     && mkdir -p /usr/local/include/onnxruntime/core/session \
@@ -37,8 +36,8 @@ RUN curl -fsSL https://github.com/microsoft/onnxruntime/releases/download/v${ORT
     && sed -i 's#/lib64#/lib#g' \
         /usr/local/lib/cmake/onnxruntime/onnxruntimeTargets-release.cmake \
         /usr/local/lib/pkgconfig/libonnxruntime.pc \
-    && (ldconfig || ldconfig || ldconfig) \
-    && rm -rf /tmp/onnxruntime-linux-aarch64-${ORT_VERSION}
+    && ldconfig \
+    && rm -rf /tmp/onnxruntime-linux-x64-${ORT_VERSION}
 
 # ~/Document is an optional bind-mount target (docker run -v <host dir>:/home/master/Document).
 RUN useradd -m -s /bin/bash -G sudo master \
@@ -48,12 +47,12 @@ RUN useradd -m -s /bin/bash -G sudo master \
 # VS Code Server for Remote-SSH, pre-installed for master where Remote-SSH looks for it.
 # It is used only when the connecting VS Code is exactly VSCODE_VERSION.
 ARG VSCODE_VERSION=1.120.0
-RUN curl -fsSL https://update.code.visualstudio.com/${VSCODE_VERSION}/server-linux-arm64/stable \
+RUN curl -fsSL https://update.code.visualstudio.com/${VSCODE_VERSION}/server-linux-x64/stable \
         | tar -xz -C /tmp \
-    && COMMIT=$(sed -n 's/.*"commit": *"\([0-9a-f]*\)".*/\1/p' /tmp/vscode-server-linux-arm64/product.json) \
+    && COMMIT=$(sed -n 's/.*"commit": *"\([0-9a-f]*\)".*/\1/p' /tmp/vscode-server-linux-x64/product.json) \
     && mkdir -p /home/master/.vscode-server/cli/servers/Stable-${COMMIT} \
-    && mv /tmp/vscode-server-linux-arm64 /home/master/.vscode-server/cli/servers/Stable-${COMMIT}/server \
-    && curl -fsSL https://update.code.visualstudio.com/${VSCODE_VERSION}/cli-alpine-arm64/stable \
+    && mv /tmp/vscode-server-linux-x64 /home/master/.vscode-server/cli/servers/Stable-${COMMIT}/server \
+    && curl -fsSL https://update.code.visualstudio.com/${VSCODE_VERSION}/cli-alpine-x64/stable \
         | tar -xz -C /home/master/.vscode-server \
     && mv /home/master/.vscode-server/code /home/master/.vscode-server/code-${COMMIT} \
     && chown -R master:master /home/master/.vscode-server
